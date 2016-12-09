@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Echarts-export</title>
+  <link href="dist/css/style.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <input type="file" id="choose">
+  <select id="chartType">
+    <option value="">請選擇圖表類型</option>
+    <option value="tree">樹形圖</option>
+    <option value="wordCloud">字符雲</option>
+    <option value="pie">餅圖</option>
+  </select>
+  <select id="styleName">
+    <option value="">請選擇樣式</option>
+    <option value="darkStyle">大概有點陰暗風</option>
+    <option value="rainbowStyle">彩虹</option>
+    <option value="wairoStyle">和色</option>
+  </select>
+  <button type="button" class="btn" id="create">生成</button>
+  <div id="chart" style="width: 100%; height: 600px;"></div>
+
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/echarts/echarts.js"></script>
+  <script src="build/js/util.js"></script>
+  <script>
+    var data;
+    $('#choose').change(function () {
+        var file = $(this)[0].files[0],
+            reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function(evt) {
+            data = $.parseJSON(evt.target.result);
+        }
+    });
+    $('#create').click(function () {
+        var option = {
+            type: $('#chartType').val(),
+            // theme: 'infographic',
+            customStyle: $('#styleName').val(),
+            seriesData: data
+        };
+        // console.log(option);
+        $('#chart').drawChart(option);
+    });
+    /*
+     * ajax請求數據
+     */
+    // $.ajax({
+    //     type: "get",
+    //     async: false,
+    //     url: src,
+    //     dataType: "json",
+    //     success: function(result) {
+    //         var option = {
+    //             type: 'tree',
+    //             seriesData: result
+    //         };
+    //         $('#tree').drawChart(option);
+    //     },
+    //     error: function(errorMsg) {
+    //         alert("數據大概被吸了");
+    //     }
+    // });
+  </script>
+</body>
