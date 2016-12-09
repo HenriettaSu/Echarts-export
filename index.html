@@ -10,28 +10,60 @@
 </head>
 
 <body>
-  <input type="file" id="choose">
-  <select id="chartType">
-    <option value="">請選擇圖表類型</option>
-    <option value="tree">樹形圖</option>
-    <option value="wordCloud">字符雲</option>
-    <option value="pie">餅圖</option>
-  </select>
-  <select id="styleName">
-    <option value="">請選擇樣式</option>
-    <option value="darkStyle">大概有點陰暗風</option>
-    <option value="rainbowStyle">彩虹</option>
-    <option value="wairoStyle">和色</option>
-  </select>
+  <div class="form-group">
+    <label for="chooseFile">數據文件</label>
+    <input type="file" id="chooseFile">
+  </div>
+  <div class="form-group">
+    <label for="chartType">圖表類型</label>
+    <select id="chartType">
+      <option value="">請選擇圖表類型</option>
+      <option value="tree">樹形圖</option>
+      <option value="wordCloud">字符雲</option>
+      <option value="pie">餅圖</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="styleName">樣式風格</label>
+    <select id="styleName">
+      <option value="">請選擇樣式</option>
+      <option value="darkStyle">大概有點陰暗風</option>
+      <option value="rainbowStyle">彩虹</option>
+      <option value="wairoStyle">和色</option>
+    </select>
+  </div>
   <button type="button" class="btn" id="create">生成</button>
-  <div id="chart" style="width: 100%; height: 600px;"></div>
+  <div id="chart" class="chart"></div>
 
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/echarts/echarts.js"></script>
-  <script src="build/js/util.js"></script>
+  <script src="build/js/Echarts-export.js"></script>
   <script>
+    /*
+     * 增加樣式方法。添加後還需在select#styleName中添加option，value同樣式名
+     */
+    // $.charts.addStyle({
+    //     wairoStyle: function () {
+    //         return {
+    //             normal: {
+    //                 color: function(params) {
+    //                     var colorList = [
+    //                         '#89C3EB','#83F6E8','#838BF6','#71C6D4','#7192D4',
+    //                         '#AEDEFF','#9E773D','#EBC389','#4D7D9E','#7AAED1',
+    //                         '#3F596B','#90CEF8'
+    //                     ];
+    //                     return colorList[params.dataIndex]
+    //                 },
+    //                 textStyle: {
+    //                     fontFamily: 'Microsoft Yahei, Arial, Verdana, sans-serif'
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+
     var data;
-    $('#choose').change(function () {
+    $('#chooseFile').change(function () {
         var file = $(this)[0].files[0],
             reader = new FileReader();
         reader.readAsText(file, "UTF-8");
@@ -42,13 +74,13 @@
     $('#create').click(function () {
         var option = {
             type: $('#chartType').val(),
-            // theme: 'infographic',
             customStyle: $('#styleName').val(),
             seriesData: data
         };
         // console.log(option);
         $('#chart').drawChart(option);
     });
+
     /*
      * ajax請求數據
      */

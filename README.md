@@ -1,6 +1,21 @@
-# Echarts-export 1.0.0
+# Echarts-export 1.0.1
 
-基於[ECharts2](http://echarts.baidu.com/echarts2/)做的圖表自動生成工具，選擇json文件和圖表類型，即可生成圖表。本插件附帶有excel轉換成json的工具。
+基於[ECharts2](http://echarts.baidu.com/echarts2/)做的圖表自動生成工具，選擇json文件和圖表類型，即可生成圖表。本工具附帶有excel轉換成json的工具。本地運行即可，但為了讀取數據文件，需在本地運行服務器，工具自帶運行方法。
+
+`$().drawChart(option)` 接收一切ECharts2的合法參數，如有需要，可參考Echarts2的文檔。
+
+## 更新日誌
+
+1. 修復不選擇樣式風格無法生成圖表bug；
+2. 頁面優化；
+
+## 圖表類型
+
+目前僅支持下列類型，更多類型擴展中。
+
+- 樹形圖
+- 字符雲
+- 餅圖
 
 ## 使用
 
@@ -21,6 +36,44 @@ gulp
 ```
 
 在自動打開的窗口中選擇數據文件（json格式），選擇圖表類型，再點擊生成按鈕即可。json文件可通過excel文件轉換，轉換命令參看gulp說明。
+
+### API
+
+目前僅開放一個接口。ECharts的實例方法還未可使用，以後會實現。
+
+#### 自定義樣式
+
+若需自定義樣式，可通過 `$.charts.addStyle(style)` 方法擴展
+
+返回的對象為ECharts的 `itemStyle` 接收的參數，可參考官方文檔。例：
+
+```
+$.charts.addStyle({
+    wairoStyle: function () {
+        return {
+            normal: {
+                color: function(params) {
+                    var colorList = [
+                        '#89C3EB','#83F6E8','#838BF6','#71C6D4','#7192D4',
+                        '#AEDEFF','#9E773D','#EBC389','#4D7D9E','#7AAED1',
+                        '#3F596B','#90CEF8'
+                    ];
+                    return colorList[params.dataIndex]
+                },
+                textStyle: {
+                    fontFamily: 'Microsoft Yahei, Arial, Verdana, sans-serif'
+                }
+            }
+        }
+    }
+});
+```
+
+添加後還需在 `select#styleName` 中添加option，value同樣式名。
+
+```
+<option value="wairoStyle">和色</option>
+```
 
 ## gulp
 
@@ -45,6 +98,10 @@ gulp
 * `json` 輸出json文件的分支
 * `vendor` 其他插件分支
 
+
+## 已知BUG
+
+運行excel時執行 `gulp tojson` 會報錯。若在 `gulp` 狀態下用excel修改文件，將報錯並退出。尚未知是否為Mac版only的bug。
 
 ## 聯繫與討論
 

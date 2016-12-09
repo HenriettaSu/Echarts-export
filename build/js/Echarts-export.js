@@ -1,3 +1,16 @@
+/*
+ * Echarts-export
+ * Version: 1.0.0
+ *
+ * Tool that would create charts by json file. It bases EChatrs.js
+ *
+ * https://github.com/HenriettaSu/Echarts-export
+ *
+ * License: MIT
+ *
+ * Released on: December 09, 2016
+ */
+
 require.config({
         paths: {
             echarts: '../vendor/echarts/'
@@ -184,9 +197,6 @@ $.extend($.charts, {
                 var myChart = ec.init(document.getElementById(id), 'macarons');
                 opt.series[0].data = opt.seriesData;
                 myChart.setOption(opt);
-                if (opt.theme) {
-                    myChart.setTheme(opt.theme);
-                }
             });
         },
         drawWordCloud: function (id, option) {
@@ -198,31 +208,29 @@ $.extend($.charts, {
                     g;
                 for (i = 0; i < opt.seriesData.length; i++) {
                     g = opt.seriesData[i];
-                    g.itemStyle = opt.style();
+                    if (opt.style) {
+                        g.itemStyle = opt.style();
+                    }
                 }
                 opt.series[0].data = opt.seriesData;
                 myChart.setOption(opt);
-                if (opt.theme) {
-                    myChart.setTheme(opt.theme);
-                }
             });
         },
         drawPie: function (id, option) {
             var opt = option;
             opt = $.extend($.charts.defaults.pie, opt || {});
             require(['echarts', 'echarts/chart/pie', 'echarts/chart/funnel'], function (ec) {
-                var myChart = ec.init(document.getElementById(id), 'macarons'),
+                var myChart = ec.init(document.getElementById(id), 'infographic'),
                     i,
                     g;
                 for (i = 0; i < opt.seriesData.length; i++) {
                     g = opt.seriesData[i];
-                    g.itemStyle = opt.style();
+                    if (opt.style) {
+                        g.itemStyle = opt.style();
+                    }
                 }
                 opt.series[0].data = opt.seriesData;
                 myChart.setOption(opt);
-                if (opt.theme) {
-                    myChart.setTheme(opt.theme);
-                }
             });
         }
     },
@@ -243,9 +251,9 @@ $.extend($.charts, {
                 normal: {
                     color: function(params) {
                         var colorList = [
-                          '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
-                           '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
-                           '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+                            '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+                            '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+                            '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
                         ];
                         return colorList[params.dataIndex]
                     },
@@ -260,9 +268,9 @@ $.extend($.charts, {
                 normal: {
                     color: function(params) {
                         var colorList = [
-                          '#89C3EB','#83F6E8','#838BF6','#71C6D4','#7192D4',
-                           '#AEDEFF','#9E773D','#EBC389','#4D7D9E','#7AAED1',
-                           '#3F596B','#90CEF8'
+                            '#89C3EB','#83F6E8','#838BF6','#71C6D4','#7192D4',
+                            '#AEDEFF','#9E773D','#EBC389','#4D7D9E','#7AAED1',
+                            '#3F596B','#90CEF8'
                         ];
                         return colorList[params.dataIndex]
                     },
