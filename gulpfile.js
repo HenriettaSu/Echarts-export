@@ -9,7 +9,8 @@ var gulp = require('gulp'),
     pump = require('pump'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
-    s2j = require('gulp-sheets2json'),
+    // tojson方法
+    // s2j = require('gulp-sheets2json'),
     bs = require('browser-sync').create();
 
 var sassFile = 'build/sass/*.scss',
@@ -18,11 +19,12 @@ var sassFile = 'build/sass/*.scss',
     cssFileSrc = 'build/css',
     jsFile = 'build/js/*.js',
     distCssSrc = 'dist/css',
-    distJsSrc = 'dist/js',
-    excelFile = 'build/excel/*.xlsx',
-    excelSrc = 'build/excel',
-    jsonFile = 'json/*.json',
-    jsonSrc = 'json';
+    distJsSrc = 'dist/js';
+    // tojson方法
+    // excelFile = 'build/excel/*.xlsx',
+    // excelSrc = 'build/excel',
+    // jsonFile = 'json/*.json',
+    // jsonSrc = 'json';
 
 // sass to css
 gulp.task('sass-to-css', function(){
@@ -59,13 +61,14 @@ gulp.task('jscompress', function (cb) {
   );
 });
 
+// tojson方法
 // to json
-gulp.task('tojson', function() {
-  return gulp.src([excelFile])
-      .pipe(changed(excelFile))
-      .pipe(s2j())
-      .pipe(gulp.dest(jsonSrc));
-});
+// gulp.task('tojson', function() {
+//   return gulp.src([excelFile])
+//       .pipe(changed(excelFile))
+//       .pipe(s2j())
+//       .pipe(gulp.dest(jsonSrc));
+// });
 
 // watch sass
 gulp.task('watch-sass', function (done) {
@@ -82,14 +85,15 @@ gulp.task('watch-js', function (done) {
   gulp.watch(jsFile, ['jscompress'])
       .on('end', done);
 });
+// tojson方法
 // watch excel
-gulp.task('watch-excel', function (done) {
-  gulp.watch(excelFile, ['tojson'])
-      .on('end', done);
-});
+// gulp.task('watch-excel', function (done) {
+//   gulp.watch(excelFile, ['tojson'])
+//       .on('end', done);
+// });
 
 // watch
-gulp.task('watch', ['watch-sass', 'watch-css', 'watch-js', 'watch-excel']);
+gulp.task('watch', ['watch-sass', 'watch-css', 'watch-js'/*, 'watch-excel'*/]); // 註釋部分為tojson方法
 
 // browser-sync
 gulp.task('browser-sync',function() {
