@@ -10,32 +10,52 @@
 </head>
 
 <body>
-  <div class="form-group">
-    <label for="chooseFile">數據文件</label>
-    <input type="file" id="chooseFile">
+  <div class="row">
+    <div class="col-50">
+      <div class="form-group">
+        <textarea id="jsonFile" class="form-control" rows="20" placeholder='[{"name":"姬佬","value":"80"},{"name":"直女","value":"20"}]'></textarea>
+        <button type="button" class="btn btn-default mt-10" id="resetJson">清空json</button>
+      </div>
+    </div>
+    <div class="col-50">
+      <div class="form-group">
+        <label for="chooseFile" class="required">數據文件：</label>
+        <input type="file" id="chooseFile" class="form-control">
+        <button type="button" class="btn btn-default" id="resetExcel">清空Excel</button>
+        <p class="text-stress">數據可通過選擇Excel文件或在左側文本區域填入json，每次只能任選其一。若同時存在，將取最近選擇或修改的數據。</p>
+      </div>
+      <div class="form-group">
+        <label for="chartType" class="required">圖表類型：</label>
+        <select id="chartType" class="form-control">
+          <option value="">請選擇圖表類型</option>
+          <option value="tree">樹形圖</option>
+          <option value="wordCloud">字符雲</option>
+          <option value="pie">餅圖</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="chooseFile">圖表名稱：</label>
+        <input type="text" id="title" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="styleName">樣式風格：</label>
+        <select id="styleName" class="form-control">
+          <option value="">請選擇樣式</option>
+          <option value="darkStyle">大概有點陰暗風</option>
+          <option value="rainbowStyle">彩虹</option>
+          <option value="wairoStyle">和色</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-stress" id="create">生成</button>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="chartType">圖表類型</label>
-    <select id="chartType">
-      <option value="">請選擇圖表類型</option>
-      <option value="tree">樹形圖</option>
-      <option value="wordCloud">字符雲</option>
-      <option value="pie">餅圖</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="styleName">樣式風格</label>
-    <select id="styleName">
-      <option value="">請選擇樣式</option>
-      <option value="darkStyle">大概有點陰暗風</option>
-      <option value="rainbowStyle">彩虹</option>
-      <option value="wairoStyle">和色</option>
-    </select>
-  </div>
-  <button type="button" class="btn" id="create">生成</button>
   <div id="chart" class="chart"></div>
 
   <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/js-xlsx/shim.js"></script>
+  <script src="vendor/js-xlsx/jszip.js"></script>
+  <script src="vendor/js-xlsx/xlsx.js"></script>
+  <script src="vendor/js-xlsx/dist/ods.js"></script>
   <script src="vendor/echarts/echarts.js"></script>
   <script src="build/js/Echarts-export.js"></script>
   <script>
@@ -62,23 +82,34 @@
     //     }
     // });
 
-    var data;
-    $('#chooseFile').change(function () {
-        var file = $(this)[0].files[0],
-            reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = function(evt) {
-            data = $.parseJSON(evt.target.result);
-        }
+    $('#chooseFile').change(handleFile);
+    $('#jsonFile').change(function () {
+        var $this = $(this);
+        data = $.parseJSON($this.val());
     });
     $('#create').click(function () {
         var option = {
             type: $('#chartType').val(),
             customStyle: $('#styleName').val(),
-            seriesData: data
+            seriesData: data,
+            title: {
+                show: $('#title').val() ? true : false,
+                text: $('#title').val() ? $('#title').val() : ''
+            }
         };
-        // console.log(option);
-        $('#chart').drawChart(option);
+        if ($('#chartType').val() === '') {
+            alert('先選個類型啊');
+        } else {
+            $('#chart').drawChart(option);
+        }
+    });
+
+    $('#resetJson').click(function () {
+        $('#jsonFile').val('');
+    });
+
+    $('#resetExcel').click(function () {
+        $('#chooseFile').val('');
     });
 
     /*
@@ -100,5 +131,15 @@
     //         alert("數據大概被吸了");
     //     }
     // });
+
+    /*
+     * 選擇json文件讀取方法，此方法不可在本地運行，你將需要運行服務器，因此不再提供，僅供參考
+     */
+    // var file = $(this)[0].files[0],
+    //     reader = new FileReader();
+    // reader.readAsText(file, "UTF-8");
+    // reader.onload = function(evt) {
+    //     data = $.parseJSON(evt.target.result);
+    // }
   </script>
 </body>

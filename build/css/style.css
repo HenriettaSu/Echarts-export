@@ -1,12 +1,53 @@
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+  *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box; }
+
 body {
   padding: 20px; }
+
+p {
+  line-height: 1.42857143; }
 
 label {
   margin-right: 10px; }
 
-.form-group {
+.mt-10 {
+  margin-top: 10px; }
+
+.required:after {
+  content: "*";
+  color: red; }
+
+.text-stress {
+  color: #f48400; }
+
+.row {
+  margin-right: -15px;
+  margin-left: -15px; }
+  .row:after {
+    content: " ";
+    display: block;
+    clear: both; }
+
+.col-50 {
+  float: left;
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+  width: 50%; }
+
+.form-line .form-group {
   display: inline-block;
   margin-right: 15px; }
+
+.form-group {
+  margin-bottom: 15px; }
 
 .btn {
   display: inline-block;
@@ -22,12 +63,10 @@ label {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background: #f48400;
   border: 1px solid transparent;
   -webkit-border-radius: 4px;
      -moz-border-radius: 4px;
-          border-radius: 4px;
-  color: #fff; }
+          border-radius: 4px; }
 
 .btn:focus,
 .btn:active:focus,
@@ -38,11 +77,19 @@ label {
 
 .btn:hover,
 .btn:focus {
-  background-color: #DA7600;
   text-decoration: none; }
 
-select {
-  height: 34px;
+.btn-default {
+  background: #fff;
+  border-color: #ccc; }
+
+.btn-stress {
+  background: #f48400;
+  color: #fff; }
+  .btn-stress:hover, .btn-stress:focus {
+    background-color: #DA7600; }
+
+.form-control {
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
@@ -62,6 +109,12 @@ select {
   -moz-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-moz-box-shadow ease-in-out .15s;
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s,-moz-box-shadow ease-in-out .15s; }
+
+textarea.form-control {
+  width: 100%; }
+
+select.form-control, input.form-control {
+  height: 34px; }
 
 .chart {
   width: 100%;

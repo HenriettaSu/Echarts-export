@@ -1,6 +1,6 @@
 /*
  * Echarts-export
- * Version: 1.0.0
+ * Version: 2.0.0
  *
  * Tool that would create charts by json file. It bases EChatrs.js
  *
@@ -8,12 +8,141 @@
  *
  * License: MIT
  *
- * Released on: December 09, 2016
+ * Released on: December 13, 2016
  */
+
+var X = XLSX,
+    XW = {
+        msg: 'xlsx',
+        rABS: '../../vendor/js-xlsx/xlsxworker2.js',
+        norABS: '../../vendor/js-xlsx/xlsxworker1.js',
+        noxfer: '../../vendor/js-xlsx/xlsxworker.js'
+    },
+    data,
+    rABS = typeof FileReader !== "undefined" && typeof FileReader.prototype !== "undefined" && typeof FileReader.prototype.readAsBinaryString !== "undefined",
+    use_worker = typeof Worker && window.location.href.match('http://') ? true : false,
+    transferable = use_worker;
+
+function fixdata(data) {
+    var o = "", l = 0, w = 10240;
+    for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
+    o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
+    return o;
+}
+
+function ab2str(data) {
+    var o = "",
+        l = 0,
+        w = 10240;
+    for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint16Array(data.slice(l*w,l*w+w)));
+    o+=String.fromCharCode.apply(null, new Uint16Array(data.slice(l*w)));
+    return o;
+}
+
+function s2ab(s) {
+    var b = new ArrayBuffer(s.length*2),
+        v = new Uint16Array(b);
+    for (var i=0; i != s.length; ++i) v[i] = s.charCodeAt(i);
+    return [v, b];
+}
+
+function xw_noxfer(data, cb) {
+	var worker = new Worker(XW.noxfer);
+	worker.onmessage = function(e) {
+		switch(e.data.t) {
+			case 'ready': break;
+			case 'e': console.error(e.data.d); break;
+			case XW.msg: cb(JSON.parse(e.data.d)); break;
+		}
+	};
+	var arr = rABS ? data : btoa(fixdata(data));
+	worker.postMessage({d:arr,b:rABS});
+}
+
+function xw_xfer(data, cb) {
+    var worker = new Worker(rABS ? XW.rABS : XW.norABS);
+    worker.onmessage = function(e) {
+        switch(e.data.t) {
+            case 'ready':
+                break;
+            case 'e':
+                console.error(e.data.d);
+                break;
+            default:
+                xx = ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r");
+                cb(JSON.parse(xx));
+        }
+    };
+    if(rABS) {
+        var val = s2ab(data);
+        worker.postMessage(val[1], [val[1]]);
+    } else {
+        worker.postMessage(data, [data]);
+    }
+}
+
+function xw(data, cb) {
+    if (transferable) {
+        xw_xfer(data, cb);
+    } else {
+        xw_noxfer(data, cb);
+    }
+}
+
+function to_json(workbook) {
+    var result = {};
+    workbook.SheetNames.forEach(function(sheetName) {
+        var worksheet = workbook.Sheets[sheetName],
+            roa = X.utils.sheet_to_row_object_array(worksheet),
+            cell;
+        for (var key in worksheet) { // TODO：需要生成多個數組的處理
+            if (worksheet.hasOwnProperty(key)) {
+                cell = worksheet[key];
+            }
+        }
+        if(roa.length > 0){
+            result = roa;
+        }
+    });
+    return result;
+}
+
+function process_wb(wb) {
+    data = $.parseJSON(JSON.stringify(to_json(wb), 2, 2));
+}
+
+function handleFile(e) {
+    var files = e.target.files,
+        f = files[0];
+    {
+        var reader = new FileReader();
+        var name = f.name;
+        reader.onload = function(e) {
+            var data = e.target.result;
+            if(use_worker) {
+                xw(data, process_wb);
+            } else {
+                var wb;
+                if(rABS) {
+                    wb = X.read(data, {type: 'binary'});
+                } else {
+                    var arr = fixdata(data);
+                    wb = X.read(btoa(arr), {type: 'base64'});
+                }
+                process_wb(wb);
+            }
+        };
+        if(rABS) {
+            reader.readAsBinaryString(f);
+        } else {
+            reader.readAsArrayBuffer(f);
+        }
+    }
+}
 
 require.config({
         paths: {
-            echarts: '../vendor/echarts/'
+            echarts: 'vendor/echarts'
         }
 });
 
@@ -84,6 +213,29 @@ $.extend($.charts, {
                 }
             ]
         },
+        wordCloud: {
+            tooltip: {
+                show: true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            series: [{
+                name: '字符雲',
+                type: 'wordCloud',
+                size: ['80%', '80%'],
+                textRotation : [0, 45, 90, -45],
+                textPadding: 0,
+                autoSize: {
+                    enable: true,
+                    minSize: 14
+                },
+                data: []
+            }]
+        },
         pie: {
             tooltip : {
                 trigger: 'item',
@@ -136,28 +288,48 @@ $.extend($.charts, {
                 }
             ]
         },
-        wordCloud: {
-            tooltip: {
+        bar: {
+            toolbox: {
                 show: true,
-                feature : {
-                    mark : {show: true},
-                    dataView : {show: true, readOnly: false},
-                    restore : {show: true},
-                    saveAsImage : {show: true}
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
                 }
             },
-            series: [{
-                name: '字符雲',
-                type: 'wordCloud',
-                size: ['80%', '80%'],
-                textRotation : [0, 45, 90, -45],
-                textPadding: 0,
-                autoSize: {
-                    enable: true,
-                    minSize: 14
-                },
-                data: []
-            }]
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    name: '', // 傳參
+                    data: [], // 傳參
+                    axisLabel: {
+                        show: true,
+                        interval: 0,
+                        rotate: 45,
+                        margin: 8,
+                        formatter: '{value}'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: [], // 傳參
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '', // 傳參
+                    type: 'bar',
+                    data: []
+                }
+            ]
         }
     },
     prototype: {
@@ -188,11 +360,13 @@ $.extend($.charts, {
                 case 'wordCloud':
                     $.charts.prototype.drawWordCloud(id, option);
                     break;
+                case 'bar':
+                    $.charts.prototype.drawBar(id, option);
+                    break;
             }
         },
         drawTree: function (id, option) {
-            var opt = option;
-            opt = $.extend($.charts.defaults.tree, opt || {});
+            var opt = $.extend($.charts.defaults.tree, option || {});
             require(['echarts', 'echarts/chart/tree'], function (ec) {
                 var myChart = ec.init(document.getElementById(id), 'macarons');
                 opt.series[0].data = opt.seriesData;
@@ -200,8 +374,7 @@ $.extend($.charts, {
             });
         },
         drawWordCloud: function (id, option) {
-            var opt = option
-            opt = $.extend($.charts.defaults.wordCloud, opt || {});
+            var opt = $.extend($.charts.defaults.wordCloud, option || {});
             require(['echarts', 'echarts/chart/wordCloud'], function (ec) {
                 var myChart = ec.init(document.getElementById(id), 'macarons'),
                     i,
@@ -217,9 +390,24 @@ $.extend($.charts, {
             });
         },
         drawPie: function (id, option) {
-            var opt = option;
-            opt = $.extend($.charts.defaults.pie, opt || {});
+            var opt = $.extend($.charts.defaults.pie, option || {});
             require(['echarts', 'echarts/chart/pie', 'echarts/chart/funnel'], function (ec) {
+                var myChart = ec.init(document.getElementById(id), 'infographic'),
+                    i,
+                    g;
+                for (i = 0; i < opt.seriesData.length; i++) {
+                    g = opt.seriesData[i];
+                    if (opt.style) {
+                        g.itemStyle = opt.style();
+                    }
+                }
+                opt.series[0].data = opt.seriesData;
+                myChart.setOption(opt);
+            });
+        },
+        drawBar: function (id, option) {
+            var opt = $.extend($.charts.defaults.bar, option || {});
+            require(['echarts', 'echarts/chart/bar', 'echarts/chart/line'], function (ec) {
                 var myChart = ec.init(document.getElementById(id), 'infographic'),
                     i,
                     g;

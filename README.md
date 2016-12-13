@@ -1,13 +1,15 @@
-# Echarts-export 1.0.1
+# Echarts-export 2.0.0
 
-基於[ECharts2](http://echarts.baidu.com/echarts2/)做的圖表自動生成工具，選擇json文件和圖表類型，即可生成圖表。本工具附帶有excel轉換成json的工具。本地運行即可，但為了讀取數據文件，需在本地運行服務器，工具自帶運行方法。
+基於[ECharts2](http://echarts.baidu.com/echarts2/)做的圖表自動生成工具，導入excel文件或json數據，選擇圖表類型，即可生成圖表。本地運行即可。
 
-`$().drawChart(option)` 接收一切ECharts2的合法參數，如有需要，可參考Echarts2的文檔。
+`$().drawChart(option)` 接收一切ECharts2的合法參數，自定義傳入參數將覆蓋默認配置參數。如有需要，可參考Echarts2的文檔。
 
 ## 更新日誌
 
-1. 修復不選擇樣式風格無法生成圖表bug；
-2. 頁面優化；
+1. 可直接選擇excel文件，不再需要自己將excel文件轉換成json了；
+2. 也不再需要運行服務器，所有生成操作可在本地直接執行；
+3. 原本的 `gulp-sheets2json` 將不再使用，但會保留在代碼中，如需使用，請到 `package.json` 和 `gulpfile.js` 中將相關的註釋代碼取消註釋；
+4. 除選擇文件方式，增加輸入json數據方式；
 
 ## 圖表類型
 
@@ -21,7 +23,7 @@
 
 ### 安裝
 
-使用本工具前需先安裝 `node.js` 和 `packjson`文件。
+如需對本工具進行深度拓展修改，需先安裝 `node.js` 和 `package.json`文件。
 
 ```js
 npm install --save-dev
@@ -29,13 +31,15 @@ npm install --save-dev
 
 ### 運行
 
-執行以下命令即可運行工具。
+修改並編譯css或js文件，執行以下命令即可運行工具。
 
 ```js
 gulp
 ```
 
-在自動打開的窗口中選擇數據文件（json格式），選擇圖表類型，再點擊生成按鈕即可。json文件可通過excel文件轉換，轉換命令參看gulp說明。
+### 使用
+
+導入數據文件（選擇excel文件或在文本區域輸入json），選擇圖表類型，再點擊生成按鈕即可。
 
 ### API
 
@@ -87,21 +91,23 @@ $.charts.addStyle({
 * `gulp sass-to-css` 將sass編譯成css
 * `gulp minify-css` 壓縮css
 * `gulp jscompress` 壓縮js
-* `gulp tojson` 將excel文件轉換成json格式
+* `gulp tojson` 將excel文件轉換成json文件，默認不安裝此工具，如需使用，請到`package.json` 和 `gulpfile.js` 開啟
 
 
 ## 分支說明
 
 * `build` 開發分支
-* `build/excel` 存放需轉換的excel文件
+* `build/excel` excel文件事例分支。如使用 `gulp tojson` 轉換方法，待轉換的excel文件存放於此
 * `dist` 包含全部編譯後代碼的分支
-* `json` 輸出json文件的分支
+* `json` 輸出json文件的分支，供 `gulp tojson` 轉換方法使用
 * `vendor` 其他插件分支
 
 
 ## 已知BUG
 
 運行excel時執行 `gulp tojson` 會報錯。若在 `gulp` 狀態下用excel修改文件，將報錯並退出。尚未知是否為Mac版only的bug。
+
+現不再建議使用此方法，暫不修復。
 
 ## 聯繫與討論
 
