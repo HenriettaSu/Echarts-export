@@ -21,12 +21,16 @@
 
 ## 使用
 
+### 生成姿勢
+
+打開 `index.html` ，頁面中導入數據文件（選擇excel文件或在文本區域輸入json），選擇圖表類型，再點擊生成按鈕即可。
+
 ### 安裝
 
-如需對本工具進行深度拓展修改，需先安裝 `node.js` 和 `package.json`文件。
+如需對本工具進行深度拓展修改，需先安裝 `node.js` 和 `package.json`文件。安裝package.json：
 
 ```js
-npm install --save-dev
+$ npm install --save-dev
 ```
 
 ### 運行
@@ -34,12 +38,8 @@ npm install --save-dev
 修改並編譯css或js文件，執行以下命令即可運行工具。
 
 ```js
-gulp
+$ gulp
 ```
-
-### 使用
-
-打開 `index.html` ，頁面中導入數據文件（選擇excel文件或在文本區域輸入json），選擇圖表類型，再點擊生成按鈕即可。
 
 ### API
 
