@@ -1,6 +1,6 @@
 /*
  * Echarts-export
- * Version: 2.0.0
+ * Version: 2.1.0
  *
  * Tool that would create charts by json file. It bases EChatrs.js
  *
@@ -8,7 +8,7 @@
  *
  * License: MIT
  *
- * Released on: December 13, 2016
+ * Released on: December 15, 2016
  */
 
 var X = XLSX,
@@ -89,26 +89,138 @@ function xw(data, cb) {
     }
 }
 
-function to_json(workbook) {
-    var result = {};
+function process_wb(workbook) {
+    var result = [],
+        chartType = $('#chartType').val();
     workbook.SheetNames.forEach(function(sheetName) {
         var worksheet = workbook.Sheets[sheetName],
             roa = X.utils.sheet_to_row_object_array(worksheet),
-            cell;
-        for (var key in worksheet) { // TODO：需要生成多個數組的處理
-            if (worksheet.hasOwnProperty(key)) {
-                cell = worksheet[key];
-            }
-        }
-        if(roa.length > 0){
-            result = roa;
+            key;
+        switch (chartType) {
+            case 'bar':
+                var xAxisName,
+                    xAxis = [],
+                    xKey,
+                    series = [];
+                for (key in worksheet) {
+                    if (worksheet.hasOwnProperty(key)) {
+                        var match = /([A-Z]+)(\d+)/.exec(key),
+                            col,
+                            row,
+                            obj = {},
+                            objName,
+                            objData;
+                        if (!match) {
+                            continue;
+                        }
+                        col = match[1]; // ABCD
+                        row = match[2]; // 1234
+                        if (row === '1') { // 取得x軸key
+                            if (col === 'A') {
+                                xAxisName = worksheet[key].v;
+                            } else {
+                                xKey = worksheet[key].v;
+                                xAxis.push(xKey);
+                            }
+                        } else {
+                            if (col === 'A') { // 取得各個bar的name並創建單獨的object
+                                obj.name = worksheet[key].v;
+                                obj.type = 'bar';
+                                obj.data = [];
+                                series.push(obj);
+                            } else { // 取得各個單元格的value並存入對應的object中
+                                var index = match[2] - 2;
+                                objData = worksheet[key].v;
+                                series[index].data.push(objData);
+                            }
+                        }
+                    }
+                }
+                result.xAxisName = xAxisName;
+                result.xAxis = xAxis;
+                result.series = series;
+                break;
+            case 'tree':
+                var series = [];
+                for (key in worksheet) {
+                    if (worksheet.hasOwnProperty(key)) {
+                        var match = /([A-Z]+)(\d+)/.exec(key),
+                            col,
+                            row,
+                            obj = {
+                                name: '',
+                                children: []
+                            },
+                            childRow,
+                            childObjName,
+                            nextCol,
+                            isPassCurrCol = false,
+                            isGetNextCol = false;
+                        if (!match) {
+                            continue;
+                        }
+                        matrix = match[0];
+                        col = match[1]; // ABCD
+                        row = match[2]; // 1234
+                        for (childKey in worksheet) { // 取得同col下非空單元格的序號
+                            if (worksheet.hasOwnProperty(childKey)) {
+                                var childMatch = /([A-Z]+)(\d+)/.exec(childKey);
+                                if (!childMatch) {
+                                    continue;
+                                }
+                                if (childMatch[1] === col) { // 同col
+                                    if (parseInt(childMatch[2]) <= parseInt(row)) { // 大於序數
+                                        continue;
+                                    }
+                                    childRow = parseInt(childMatch[2]);
+                                    break;
+                                }
+                            }
+                        }
+                        for (k in worksheet) {
+                            if (worksheet.hasOwnProperty(k)) {
+                                var kMatch = /([A-Z]+)(\d+)/.exec(k),
+                                    kCol,
+                                    childObj = {
+                                        name: '',
+                                        children: []
+                                    };
+                                if (!kMatch) {
+                                    continue;
+                                }
+                                kCol = kMatch[1];
+                                kRow = parseInt(kMatch[2]);
+                                if (kCol !== col && isPassCurrCol === false) {
+                                    continue;
+                                } else if (kCol === col) {
+                                    isPassCurrCol = true;
+                                    continue;
+                                }
+                                if (isGetNextCol === false) {
+                                    nextCol = kMatch[1];
+                                    isGetNextCol = true;
+                                }
+                                if (kCol === nextCol && kRow > parseInt(row) && kRow < childRow) {
+                                    childObj.name = worksheet[k].v;
+                                    obj.children.push(childObj);
+                                }
+                            }
+                        }
+                        obj.name = worksheet[key].v;
+                        series.push(obj);
+                        console.log(obj)
+                        break;
+                    }
+                }
+                console.log(series)
+                break;
+            default:
+                if(roa.length > 0){
+                    result = roa;
+                }
         }
     });
-    return result;
-}
-
-function process_wb(wb) {
-    data = $.parseJSON(JSON.stringify(to_json(wb), 2, 2));
+    data = result;
 }
 
 function handleFile(e) {
@@ -317,19 +429,12 @@ $.extend($.charts, {
             yAxis: [
                 {
                     type: 'value',
-                    name: [], // 傳參
                     axisLabel: {
                         formatter: '{value}'
                     }
                 }
             ],
-            series: [
-                {
-                    name: '', // 傳參
-                    type: 'bar',
-                    data: []
-                }
-            ]
+            series: [] // 傳參
         }
     },
     prototype: {
@@ -408,16 +513,18 @@ $.extend($.charts, {
         drawBar: function (id, option) {
             var opt = $.extend($.charts.defaults.bar, option || {});
             require(['echarts', 'echarts/chart/bar', 'echarts/chart/line'], function (ec) {
-                var myChart = ec.init(document.getElementById(id), 'infographic'),
+                var myChart = ec.init(document.getElementById(id), 'macarons'),
                     i,
                     g;
-                for (i = 0; i < opt.seriesData.length; i++) {
-                    g = opt.seriesData[i];
+                for (i = 0; i < opt.seriesData.series.length; i++) {
+                    g = opt.seriesData.series[i];
                     if (opt.style) {
                         g.itemStyle = opt.style();
                     }
                 }
-                opt.series[0].data = opt.seriesData;
+                opt.xAxis[0].data = opt.seriesData.xAxis;
+                opt.xAxis[0].name = opt.seriesData.xAxisName;
+                opt.series = opt.seriesData.series;
                 myChart.setOption(opt);
             });
         }

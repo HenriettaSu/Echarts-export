@@ -19,19 +19,21 @@
     </div>
     <div class="col-50">
       <div class="form-group">
-        <label for="chooseFile" class="required">數據文件：</label>
-        <input type="file" id="chooseFile" class="form-control">
-        <button type="button" class="btn btn-default" id="resetExcel">清空Excel</button>
-        <p class="text-stress">數據可通過選擇Excel文件或在左側文本區域填入json，每次只能任選其一。若同時存在，將取最近選擇或修改的數據。</p>
-      </div>
-      <div class="form-group">
         <label for="chartType" class="required">圖表類型：</label>
         <select id="chartType" class="form-control">
           <option value="">請選擇圖表類型</option>
           <option value="tree">樹形圖</option>
           <option value="wordCloud">字符雲</option>
           <option value="pie">餅圖</option>
+          <option value="bar">柱狀圖</option>
         </select>
+        <p class="text-stress">因Excel文件載入時就要將其解釋成json，而不同圖表類型所需要的解釋方法不同，在選擇文件前請先選擇圖表類型。</p>
+      </div>
+      <div class="form-group">
+        <label for="chooseFile" class="required">數據文件：</label>
+        <input type="file" id="chooseFile" class="form-control">
+        <button type="button" class="btn btn-default" id="resetExcel">清空Excel</button>
+        <p class="text-stress">數據可通過選擇Excel文件或在左側文本區域填入json，每次只能任選其一。若同時存在，將取最近選擇或修改的數據。</p>
       </div>
       <div class="form-group">
         <label for="chooseFile">圖表名稱：</label>
@@ -60,7 +62,7 @@
   <script src="build/js/Echarts-export.js"></script>
   <script>
     /*
-     * 增加樣式方法。添加後還需在select#styleName中添加option，value同樣式名
+     * 增加圖形樣式（itemStyle）方法。添加後還需在select#styleName中添加option，value同樣式名
      */
     // $.charts.addStyle({
     //     wairoStyle: function () {

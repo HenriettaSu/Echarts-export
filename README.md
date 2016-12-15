@@ -1,15 +1,13 @@
-# Echarts-export 2.0.0
+# Echarts-export 2.1.0
 
 基於[ECharts2](http://echarts.baidu.com/echarts2/)做的圖表自動生成工具，導入excel文件或json數據，選擇圖表類型，即可生成圖表。本地運行即可。
 
 `$().drawChart(option)` 接收一切ECharts2的合法參數，自定義傳入參數將覆蓋默認配置參數。如有需要，可參考Echarts2的文檔。
 
-## 更新日誌
+## 最近更新
 
-1. 可直接選擇excel文件，不再需要自己將excel文件轉換成json了；
-2. 也不再需要運行服務器，所有生成操作可在本地直接執行；
-3. 原本的 `gulp-sheets2json` 將不再使用，但會保留在代碼中，如需使用，請到 `package.json` 和 `gulpfile.js` 中將相關的註釋代碼取消註釋；
-4. 除選擇文件方式，增加輸入json數據方式；
+1. 增加柱狀圖類型；
+2. 代碼結構優化；
 
 ## 圖表類型
 
@@ -18,12 +16,15 @@
 - 樹形圖
 - 字符雲
 - 餅圖
+- 柱狀圖
 
 ## 使用
 
 ### 生成姿勢
 
 打開 `index.html` ，頁面中導入數據文件（選擇excel文件或在文本區域輸入json），選擇圖表類型，再點擊生成按鈕即可。
+
+因Excel文件載入時就要將其解釋成json，而不同圖表類型所需要的解釋方法不同，在選擇文件前請先選擇圖表類型。
 
 ### 安裝
 
@@ -47,7 +48,7 @@ $ gulp
 
 #### 自定義樣式
 
-若需自定義樣式，可通過 `$.charts.addStyle(style)` 方法擴展
+若需自定義圖形樣式（itemStyle），可通過 `$.charts.addStyle(style)` 方法擴展
 
 返回的對象為ECharts的 `itemStyle` 接收的參數，可參考官方文檔。例：
 
@@ -103,11 +104,27 @@ $.charts.addStyle({
 * `vendor` 其他插件分支
 
 
-## 已知BUG
+## 更新日誌
 
-運行excel時執行 `gulp tojson` 會報錯。若在 `gulp` 狀態下用excel修改文件，將報錯並退出。尚未知是否為Mac版only的bug。
+### ver 2.0.0
 
-現不再建議使用此方法，暫不修復。
+1. 可直接選擇excel文件，不再需要自己將excel文件轉換成json了；
+2. 也不再需要運行服務器，所有生成操作可在本地直接執行；
+3. 原本的 `gulp-sheets2json` 將不再使用，但會保留在代碼中，如需使用，請到 `package.json` 和 `gulpfile.js` 中將相關的註釋代碼取消註釋；
+4. 除選擇文件方式，增加輸入json數據方式；
+
+### ver 1.0.1
+
+1. 修復不選擇樣式風格無法生成圖表bug；
+2. 頁面優化
+
+## TODO
+
+1. 樹形圖excel文件解釋方法；
+
+2. 運行excel時執行 `gulp tojson` 會報錯。若在 `gulp` 狀態下用excel修改文件，將報錯並退出。尚未知是否為Mac版only的bug。
+
+   現不再建議使用此方法，暫不修復；
 
 ## 聯繫與討論
 
